@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -19,12 +20,11 @@ public class StudentService {
     @Autowired
     private StudentRepository studentRepository;
 
-    public DataCreateStudent createStudent(DataCreateStudent data) throws EstudanteDuplicadoException {
+    public void createStudent(DataCreateStudent data) throws EstudanteDuplicadoException {
      if(!studentRepository.findByName(data.name()).isEmpty()){
          throw new EstudanteDuplicadoException("Esse estudante já existe no banco de dados");
      }
     studentRepository.save(new Student(data));
-     return data;
     }
 
     public List<DataStudentDetails> listAllStudents(){
@@ -54,15 +54,15 @@ public class StudentService {
     }
 
     public List<DataStudentDetails> getStudentByCurso(String curso) throws EstudanteNaoEncontradoPeloCursoException {
-        List<DataStudentDetails> studentDetails = studentRepository.findByCurso(curso).get();
+        List<DataStudentDetails> studentDetails = studentRepository.findByCurso(curso).orElse(null).stream().map(DataStudentDetails::new).collect(Collectors.toList());
         if(studentDetails.isEmpty()){
             throw new EstudanteNaoEncontradoPeloCursoException(curso);
         }
-        return studentDetails;
+      return  studentDetails;
      }
 
     public List<DataStudentDetails> getByInicialName(String nomeInicial) throws EstudantNaoEncontradoPeloNomeException {
-        List<DataStudentDetails> studentDetails= studentRepository.findByNameStartingWith(nomeInicial).get();
+        List<DataStudentDetails> studentDetails=studentRepository.findByNameStartingWith(nomeInicial).orElse(null).stream().map(DataStudentDetails::new).collect(Collectors.toList());
         if(studentDetails.isEmpty()){
             throw new EstudantNaoEncontradoPeloNomeException(nomeInicial);
         }
@@ -70,7 +70,7 @@ public class StudentService {
     }
 
     public List<DataStudentDetails> getByInicialNameAndCurso(String nomeInicial,String curso) throws EstudantNaoEncontradoPeloNomeECursoException {
-        List<DataStudentDetails> studentDetails=  studentRepository.findByNameStartingWithAndCurso(nomeInicial,curso).get();
+        List<DataStudentDetails> studentDetails=  studentRepository.findByNameStartingWithAndCurso(nomeInicial,curso).orElse(null).stream().map(DataStudentDetails::new).collect(Collectors.toList());
         if(studentDetails.isEmpty()){
             throw new EstudantNaoEncontradoPeloNomeECursoException(nomeInicial,curso);
         }
@@ -78,7 +78,7 @@ public class StudentService {
     }
 
     public List<DataStudentDetails> getByEndereco(String endereco) throws EstudanteNaoEncontradoPeloEnderecoException {
-        List<DataStudentDetails> studentDetails= studentRepository.findByEnderecoStartingWithOrderByEnderecoDesc(endereco).get();
+        List<DataStudentDetails> studentDetails= studentRepository.findByEnderecoStartingWithOrderByEnderecoDesc(endereco).orElse(null).stream().map(DataStudentDetails::new).collect(Collectors.toList());
         if(studentDetails.isEmpty()){
             throw new EstudanteNaoEncontradoPeloEnderecoException(endereco);
         }
