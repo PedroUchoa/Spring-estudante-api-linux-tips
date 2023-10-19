@@ -18,8 +18,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage() + "\n" + ex.getClass());
     }
 
+    @ExceptionHandler(UserDuplicadoException.class)
+    public ResponseEntity<String> handleUserDuplicadoException(Exception ex){
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage() + "\n" + ex.getClass());
+    }
+
     @ExceptionHandler(EstudantNaoEncontradoPeloNomeException.class)
-    public ResponseEntity<String> hadleEstudantNaoEncontradoPeloNomeException(Exception ex){
+    public ResponseEntity<String> handleEstudantNaoEncontradoPeloNomeException(Exception ex){
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage() + "\n" + ex.getClass() );
     }
 
