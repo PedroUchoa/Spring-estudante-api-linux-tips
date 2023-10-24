@@ -4,11 +4,14 @@ import com.linuxtips.descomplicandojavaspring.estudanteapi.dtos.DataCreateStuden
 import com.linuxtips.descomplicandojavaspring.estudanteapi.dtos.DataStudentDetails;
 import com.linuxtips.descomplicandojavaspring.estudanteapi.exceptions.EstudanteNaoEncontradoException;
 import com.linuxtips.descomplicandojavaspring.estudanteapi.services.StudentService;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 
 import java.util.List;
 
@@ -16,12 +19,27 @@ import java.util.List;
 @RequestMapping("/students")
 public class StudentControllers {
 
+    Counter novosEstudantesCounter;
+
+    Counter estudantesDesmatriculados;
+
+    public StudentControllers(MeterRegistry registry){
+        novosEstudantesCounter = Counter.builder("novos_estudantes_counter")
+                .description("Estudantes que foram matriculados")
+                .register(registry);
+        estudantesDesmatriculados = Counter.builder("estudantes_desmatriculados_counter")
+                .description("Estudantes que foram desmatriculados")
+                .register(registry);
+    }
+
+
     @Autowired
     private StudentService studentService;
 
     @PostMapping
     @Transactional
     public ResponseEntity<DataCreateStudent> createStudent(@RequestBody DataCreateStudent data) throws Exception{
+        novosEstudantesCounter.increment();
         studentService.createStudent(data);
         return ResponseEntity.status(HttpStatus.CREATED).body(data);
     }
@@ -49,6 +67,7 @@ public class StudentControllers {
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity<Void> deleteAnStudent(@PathVariable Long id) throws Exception {
+        estudantesDesmatriculados.increment();
         studentService.deleteAnStudent(id);
         return ResponseEntity.noContent().build();
     }
