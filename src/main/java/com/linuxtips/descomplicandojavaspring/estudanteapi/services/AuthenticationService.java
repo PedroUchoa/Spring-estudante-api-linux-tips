@@ -1,6 +1,6 @@
 package com.linuxtips.descomplicandojavaspring.estudanteapi.services;
 
-import com.linuxtips.descomplicandojavaspring.estudanteapi.model.User;
+
 import com.linuxtips.descomplicandojavaspring.estudanteapi.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
